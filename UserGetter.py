@@ -95,6 +95,8 @@ class UserGetter():
 
 if __name__ == "__main__":
     ug = UserGetter()
+    ug.load_users()
     ug.get_top_post_users()
     ug.get_users_info()
+    ug.store_users()
     print(ug.users)
