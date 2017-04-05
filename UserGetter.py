@@ -61,7 +61,7 @@ class UserGetter():
                 for kid in post_json['kids']:
                     self.get_users(kid)
         except:
-            print post_json
+            print post_id
 
     def get_users_info(self):
         for user_id in self.users.keys():
