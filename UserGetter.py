@@ -25,8 +25,7 @@ def ratelimit(max_per_second):
 
 class UserGetter():
     def __init__(self):
-        self.users = {}
-        self.favorites = {}
+        self.users = {} # user_id: { karma: 0, favorites: [] }
         self.__karma_threshold = 500
         self.__got_user_info = False
 
@@ -51,15 +50,18 @@ class UserGetter():
             self.get_users(post_id)
 
     def get_users(self, post_id):
-        post_json = self.get_item_json('item', post_id)
-        if 'by' in post_json: # Deleted posts don't have author
-            self.users[post_json['by']] = {'karma': 0}
+        try:
+            post_json = self.get_item_json('item', post_id)
+            if 'by' in post_json: # Deleted posts don't have author
+                self.users[post_json['by']] = {'karma': 0} # Store the user
 
-        if not 'kids' in post_json:
-            return
-        else:
-            for kid in post_json['kids']:
-                self.get_users(kid)
+            if not 'kids' in post_json:
+                return
+            else:
+                for kid in post_json['kids']:
+                    self.get_users(kid)
+        except:
+            print post_json
 
     def get_users_info(self):
         for user_id in self.users.keys():
