@@ -69,7 +69,7 @@ class UserGetter():
                 user_json = self.get_item_json('user', user_id)
                 if user_json and user_json['karma'] > self.__karma_threshold:
                     self.users[user_id]['karma'] = user_json['karma']
-                    self.get_user_favorites(user_id)
+                    self.users[user_id]['favorites'] = self.get_user_favorites(user_id)
                 else:
                     self.users.pop(user_id, None)
 
@@ -81,13 +81,16 @@ class UserGetter():
 
     @ratelimit(RATE_LIMIT)
     def get_user_favorites(self, user_id):
-        favorites = {}
-        story_regex = r'<a href="(http.+)" class="storylink">(.+?)</a>' # Links to HN don't have http
-        user_text = requests.get('https://news.ycombinator.com/favorites?id={0}'.format(user_id)).text
-        matches = re.findall(story_regex, user_text)
-        for tup in matches:
-            favorites[tup[0]] = tup[1]
-        self.users[user_id]['favorites'] = favorites
+        favorites = []
+        story_regex = r"<tr class='athing' id='([0-9]+)'"
+        for page in range(1, 10): #TODO: Only get next page if 'More' link
+            profile_text = requests.get('https://news.ycombinator.com/favorites?id={0}&p={1}'.format(user_id, page)).text
+            matches = re.findall(story_regex, profile_text)
+            if not matches:
+                break
+            else:
+                favorites = favorites + matches
+        return favorites
 
 
 if __name__ == "__main__":
