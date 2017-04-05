@@ -65,9 +65,9 @@ class UserGetter():
 
     def get_users_info(self):
         for user_id in self.users.keys():
-            user_json = self.get_item_json('user', user_id)
-            if user_json:
-                if user_json['karma'] > self.__karma_threshold:
+            if self.users[user_id]['karma'] == 0: # Don't get already fetched (?)
+                user_json = self.get_item_json('user', user_id)
+                if user_json and user_json['karma'] > self.__karma_threshold:
                     self.users[user_id]['karma'] = user_json['karma']
                     self.get_user_favorites(user_id)
                 else:
