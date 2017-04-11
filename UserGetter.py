@@ -52,22 +52,25 @@ class UserGetter():
     def get_users(self, post_id):
         try:
             post_json = self.get_item_json('item', post_id)
-            if 'by' in post_json: # Deleted posts don't have author
-                self.users[post_json['by']] = {'karma': 0} # Store the user
+            if post_json:
+                if 'by' in post_json: # Deleted posts don't have author
+                    self.users[post_json['by']] = {'karma': 0} # Store the user
 
-            if not 'kids' in post_json:
-                return
+                if not 'kids' in post_json:
+                    return
+                else:
+                    for kid in post_json['kids']:
+                        self.get_users(kid)
             else:
-                for kid in post_json['kids']:
-                    self.get_users(kid)
+                print('ERROR: No post JSON: {0}'.format(post_id))
         except:
-            print post_id
+            print('ERROR: get_users try catch: {0}'.format(post_id))
 
     def get_users_info(self):
         for user_id in self.users.keys():
             if self.users[user_id]['karma'] == 0: # Don't get already fetched (?)
                 user_json = self.get_item_json('user', user_id)
-                if user_json and user_json['karma'] > self.__karma_threshold:
+                if user_json and 'karma' in user_json and user_json['karma'] > self.__karma_threshold:
                     self.users[user_id]['karma'] = user_json['karma']
                     self.users[user_id]['favorites'] = self.get_user_favorites(user_id)
                 else:
