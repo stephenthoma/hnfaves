@@ -1,12 +1,6 @@
-import requests, time, re, pickle
+import requests, time, re, redis
 API_BASE_URL = 'https://hacker-news.firebaseio.com/v0/'
 RATE_LIMIT = 20
-
-def merge_two_dicts(x, y):
-    # Shallow merge
-    z = x.copy()
-    z.update(y)
-    return z
 
 def ratelimit(max_per_second):
     min_interval = 1.0 / float(max_per_second)
@@ -26,23 +20,16 @@ def ratelimit(max_per_second):
 class UserGetter():
     def __init__(self):
         self.users = {} # user_id: { karma: 0, favorites: [] }
+        self.redis = redis.StrictRedis(host = 'localhost', port = 6379, db = 0)
         self.__karma_threshold = 500
         self.__got_user_info = False
 
     def store_users(self):
-        with open('ug.dat', 'w+') as fi:
-            pickle.dump(self.users, fi)
+        if not self.__got_user_info:
+            return
 
-    def load_users(self):
-        try:
-            with open('ug.dat', 'r') as fi:
-                loaded_users = pickle.load(fi)
-                if len(self.users.keys()) == 0:
-                    self.users = loaded_users
-                else:
-                    self.users = merge_two_dicts(self.users, loaded_users)
-        except:
-            pass
+        for user in self.users:
+            self.redis.hmset('users:'+user, self.users[user])
 
     def get_top_post_users(self):
         top_post_ids = requests.get(API_BASE_URL + 'topstories.json').json()
@@ -98,8 +85,7 @@ class UserGetter():
 
 if __name__ == "__main__":
     ug = UserGetter()
-    ug.load_users()
     ug.get_top_post_users()
     ug.get_users_info()
     ug.store_users()
-    print(ug.users)
+    # print(ug.users)
