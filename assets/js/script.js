@@ -11,8 +11,9 @@
     if ( httpRequest === undefined ) {
       return;
     }
+    var count = document.getElementById('favorites-list').getElementsByTagName('li').length - 1;
     httpRequest.onreadystatechange = renderItems;
-    httpRequest.open( 'GET', 'http://localhost:8001/more' );
+    httpRequest.open( 'GET', `http://localhost:8001/more?count=${count}` );
     httpRequest.send();
   }
 
