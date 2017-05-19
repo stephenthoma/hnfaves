@@ -14,7 +14,7 @@ html(lang="en")
             div(class="item-meta")
               span(class="item-meta-favoriters") Favorited by #{item.numFavoriters}
               span(class="item-meta-bullet") &bull;
-              a(class="item-meta-comments" href=item.commentUrl) #{item.numComments} comments
+              a(class="item-meta-comments" href="https://news.ycombinator.com/item?id="+item.id) #{item.numComments} comments
       div(class="more-container")
         a(id="more-items-button" href="#") More
       footer

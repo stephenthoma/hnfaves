@@ -19,17 +19,17 @@
 
   function renderItems() {
     if ( httpRequest.readyState === XMLHttpRequest.DONE && httpRequest.status === 200 ) {
-      const listItem = ({ url, title, numFavoriters, commentUrl, numComments }) => `
+      var listItem = ({ url, title, numFavoriters, commentId, numComments }) => `
         <li class="favorites-list-item">
           <a class="item-title" href=${url}> ${title}</a>
           <div class="item-meta">
             <span class="item-meta-favoriters"> Favorited by ${numFavoriters}</span>
             <span class="item-meta-bullet"> &bull;</span>
-            <a class="item-meta-comments" href=${commentUrl}> ${numComments} comments</a>
+            <a class="item-meta-comments" href="https://news.ycombinator.com/item?id=${commentId}"> ${numComments} comments</a>
           </div>
         </li>
       `;
-      const items = JSON.parse( httpRequest.responseText );
+      var items = JSON.parse( httpRequest.responseText );
       document.getElementById( 'favorites-list' ).insertAdjacentHTML( 'beforeend' , items.map( listItem ).join( '' ));
     }
   }
