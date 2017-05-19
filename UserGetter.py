@@ -1,4 +1,4 @@
-import requests, time, re
+import requests, time, re, pickle
 API_BASE_URL = 'https://hacker-news.firebaseio.com/v0/'
 RATE_LIMIT = 20
 
@@ -24,6 +24,10 @@ class UserGetter():
         self.__karma_threshold = 500
         self.__got_user_info = False
 
+    def store_users(self):
+        with open('hnfave_dump', 'r') as f:
+            pickle.dump(self.users, f)
+
     def get_top_post_users(self):
         top_post_ids = requests.get(API_BASE_URL + 'topstories.json').json()
         for post_id in top_post_ids[:1]:
@@ -37,6 +41,7 @@ class UserGetter():
         if not 'kids' in post_json:
             return
         else:
+            print post_json
             for kid in post_json['kids']:
                 self.get_users(kid)
 
@@ -72,3 +77,4 @@ if __name__ == "__main__":
     ug.get_top_post_users()
     ug.get_users_info()
     print(ug.users)
+    ug.store_users()

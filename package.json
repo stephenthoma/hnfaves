@@ -1,0 +1,25 @@
+{
+  "name": "hnfaves",
+  "version": "1.0.0",
+  "description": "HN favorites aggregator",
+  "main": "index.js",
+  "dependencies": {
+    "cron": "^1.2.1",
+    "pug": "^2.0.0-rc.1",
+    "redis": "^2.7.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stephenthoma/hnfaves.git"
+  },
+  "author": "Stephen Thoma",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stephenthoma/hnfaves/issues"
+  },
+  "homepage": "https://github.com/stephenthoma/hnfaves#readme"
+}

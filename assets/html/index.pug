@@ -1,0 +1,23 @@
+html(lang="en")
+  head
+    meta(charset="utf-8")
+    title HN FAVES
+    link(rel="stylesheet" href="/assets/css/styles.css")
+  body
+    div(class="container")
+      header
+        h1 HN FAVES
+      ol(class="favorites-list" id="favorites-list")
+        each item in items
+          li(class="favorites-list-item")
+            a(class="item-title" href=item.url) #{item.title}
+            div(class="item-meta")
+              span(class="item-meta-favoriters") Favorited by #{item.numFavoriters}
+              span(class="item-meta-bullet") &bull;
+              a(class="item-meta-comments" href=item.commentUrl) #{item.numComments} comments
+      div(class="more-container")
+        a(id="more-items-button" href="#") More
+      footer
+        span Created by&nbsp;
+          a(href="https://www.stephenthoma.com") Stephen Thoma
+    script(src="/assets/js/script.js")
