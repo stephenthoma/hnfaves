@@ -1,3 +1,4 @@
+'use strict';
 const Redis = require( 'redis' ).createClient().on( 'error', reportException );
 const fs = require( 'fs' );
 
@@ -13,7 +14,7 @@ function onRequest( req, res ) {
     req.res = res;
     if ( req.url === '/' ) {
       indexRequest( req );
-    } else if ( req.url === '/more' ) {
+    } else if ( req.url.includes( '/more' ) === true ) {
       moreRequest( req );
     } else {
         if ( req.url !== '/healthcheck' ) {
@@ -45,24 +46,38 @@ function indexRequest( reqRes ) {
 }
 
 function moreRequest( reqRes ) {
-    const resItems = [
-      {
-        numComments: 10,
-        numFavoriters: 5,
-        title: 'Redis is bestest',
-        url: 'www.google.com',
-        commentUrl: 'www.news.ycombinator.com'
-      },
-      {
-        numComments: 0,
-        numFavoriters: 7,
-        title: 'Redis is worst',
-        url: 'www.google.com',
-        commentUrl: 'www.news.ycombinator.com'
+    let startIdx = +reqRes.url.split('/more?count=')[1];
+    startIdx = isNaN( startIdx ) ? 0 : startIdx;
+    const endIdx = startIdx + 5;
+
+    getItems( startIdx, endIdx, function( error, resItems ) {
+      reqRes.res.writeHeader(200, {"Content-Type": "application/json"});
+      reqRes.res.end( JSON.stringify( resItems ) );
+    });
+}
+
+function getItems( start, end, callback ) {
+  Redis.SORT('sindex', 'by', 'story:*->numFavoriters', 'limit', start.toString(), end.toString(), 'desc', 'get', '#', function( error, storyList ) {
+    if ( error !== null ) {
+      callback( error, null );
+    }
+    MHGETALL( storyList, function( error, storyArray ) {
+      if ( error !== null ) {
+        callback( error, null );
       }
-    ];
-    reqRes.res.writeHeader(200, {"Content-Type": "application/json"});
-    reqRes.res.end( JSON.stringify( resItems ) );
+      callback( null, storyArray );
+    });
+  });
+}
+
+function MHGETALL( keys, callback ) {
+    const multi = Redis.multi();
+    keys.forEach( function( key, index ) {
+        multi.hgetall( key );
+    });
+    multi.exec( function( error, result ) {
+        callback( error, result );
+    });
 }
 
 require( 'http' )
