@@ -1,8 +1,8 @@
 'use strict';
-const CronJob = require('cron').CronJob;
-const pug = require('pug');
-const Redis = require( 'redis' ).createClient().on( 'error', reportException );
 const fs = require('fs');
+const pug = require('pug');
+const CronJob = require('cron').CronJob;
+const Redis = require( 'redis' ).createClient().on( 'error', reportException );
 const PRODUCTION = process.env.NODE_ENV === 'production';
 
 if ( PRODUCTION === true ) {
@@ -14,12 +14,6 @@ if ( PRODUCTION === true ) {
   });
 } else {
   compileIndex();
-  //getTopItems( 10, function( error, res ) {
-    //console.log(error, res);
-  //});
-  //MHGETALL(['story:1', 'story:2'], function( error, result ) {
-    //console.log( error, result );
-  //});
 }
 
 function reportException( error ) {
@@ -29,7 +23,6 @@ function reportException( error ) {
 function reportLog( message ) {
   console.log( message );
 }
-
 
 function compileIndex() {
   const compiledFunction = pug.compileFile( __dirname + '/../assets/html/index.pug' );
@@ -47,48 +40,25 @@ function compileIndex() {
 }
 
 function getTopItems( number, callback ) {
-  //Redis.sort('sindex BY *->numFavoriters desc', function( error, storyList ) {
-    //callback( error, storyList );
-    //if ( error !== null ) {
-      //callback( error, null );
-    //}
-    //MHGETALL( storyList, function( error, storyArray ) {
-      //if ( error !== null ) {
-        //callback( error, null );
-      //}
-      //callback( null, storyArray );
-    //});
-  //});
-
-    let a = {
-      1: {
-        favoriters: ['a', 'b', 'c'],
-        numComments: 10,
-        numFavoriters: 5,
-        title: 'Redis is bestest',
-        url: 'www.google.com',
-        commentUrl: 'www.news.ycombinator.com'
-      },
-      2: {
-        favoriters: ['a', 'b', 'c'],
-        numComments: 0,
-        numFavoriters: 7,
-        title: 'Redis is worst',
-        url: 'www.google.com',
-        commentUrl: 'www.news.ycombinator.com'
+  Redis.SORT('sindex', 'by', 'story:*->numFavoriters', 'limit', '0', number.toString(), 'desc', 'get', '#', function( error, storyList ) {
+    if ( error !== null ) {
+      callback( error, null );
+    }
+    MHGETALL( storyList, function( error, storyArray ) {
+      if ( error !== null ) {
+        callback( error, null );
       }
-    };
-    callback( null, a );
+      callback( null, storyArray );
+    });
+  });
 }
 
 function MHGETALL( keys, callback ) {
-    const pipeline = Redis.pipeline();
-
+    const multi = Redis.multi();
     keys.forEach( function( key, index ) {
-        pipeline.hgetall( key );
+        multi.hgetall( key );
     });
-
-    pipeline.exec( function( err, result ) {
-        callback( err, result );
+    multi.exec( function( error, result ) {
+        callback( error, result );
     });
 }
