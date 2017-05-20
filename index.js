@@ -47,7 +47,7 @@ function indexRequest( reqRes ) {
 
 function moreRequest( reqRes ) {
     let startIdx = +reqRes.url.split('/more?count=')[1];
-    startIdx = isNaN( startIdx ) ? 0 : startIdx;
+    startIdx = isNaN( startIdx ) ? 20 : startIdx;
     const endIdx = startIdx + 5;
 
     getItems( startIdx, endIdx, function( error, resItems ) {
