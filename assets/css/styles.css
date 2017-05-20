@@ -12,6 +12,7 @@ body {
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
   -moz-font-smoothing: antialiased;
+  margin: 0;
 
   background-color: #eceef1;
 }
@@ -24,6 +25,7 @@ header {
 header h1 {
   letter-spacing: 5px;
   font-weight: 100;
+  margin: 20px;
 }
 
 .container {
@@ -106,8 +108,9 @@ li.favorites-list-item .item-meta .item-meta-bullet {
 }
 
 footer {
-  margin-top: 40px;
+  margin-top: 20px;
   padding-top: 20px;
+  padding-bottom: 20px;
   text-align: center;
   border-top: 1px solid #aaa;
   color: #444;
