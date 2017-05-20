@@ -48,16 +48,15 @@ function indexRequest( reqRes ) {
 function moreRequest( reqRes ) {
     let startIdx = +reqRes.url.split('/more?count=')[1];
     startIdx = isNaN( startIdx ) ? 10 : startIdx;
-    const endIdx = startIdx + 5;
 
-    getItems( startIdx, endIdx, function( error, resItems ) {
+    getItems( startIdx, 5, function( error, resItems ) {
       reqRes.res.writeHeader(200, {"Content-Type": "application/json"});
       reqRes.res.end( JSON.stringify( resItems ) );
     });
 }
 
-function getItems( start, end, callback ) {
-  Redis.SORT('sindex', 'by', 'story:*->numFavoriters', 'limit', start.toString(), end.toString(), 'desc', 'get', '#', function( error, storyList ) {
+function getItems( start, numItems, callback ) {
+  Redis.SORT('sindex', 'by', 'story:*->numFavoriters', 'limit', start.toString(), numItems.toString(), 'desc', 'get', '#', function( error, storyList ) {
     if ( error !== null ) {
       callback( error, null );
     }
