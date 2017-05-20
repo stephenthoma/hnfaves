@@ -52,7 +52,7 @@ function lookupItem( itemId, callback ) {
     } else {
       const item = {}
       body = JSON.parse( body );
-      item.url = body.url;
+      item.url = body.url || `https://news.ycombinator.com/item?id=${itemId}`;
       item.title = body.title;
       item.id = itemId;
       item.numComments = body.descendants;
