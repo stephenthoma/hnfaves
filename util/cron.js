@@ -40,7 +40,7 @@ function compileIndex() {
 }
 
 function getTopItems( number, callback ) {
-  Redis.SORT('sindex', 'by', 'story:*->numFavoriters', 'limit', '0', number.toString(), 'desc', 'get', '#', function( error, storyList ) {
+  Redis.SORT('sindex', 'by', '*->numFavoriters', 'limit', '0', number.toString(), 'desc', 'get', '#', function( error, storyList ) {
     if ( error !== null ) {
       callback( error, null );
     }

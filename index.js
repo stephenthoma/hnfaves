@@ -56,7 +56,7 @@ function moreRequest( reqRes ) {
 }
 
 function getItems( start, numItems, callback ) {
-  Redis.SORT('sindex', 'by', 'story:*->numFavoriters', 'limit', start.toString(), numItems.toString(), 'desc', 'get', '#', function( error, storyList ) {
+  Redis.SORT('sindex', 'by', '*->numFavoriters', 'limit', start.toString(), numItems.toString(), 'desc', 'get', '#', function( error, storyList ) {
     if ( error !== null ) {
       callback( error, null );
     }
