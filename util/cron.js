@@ -26,7 +26,7 @@ function reportLog( message ) {
 
 function compileIndex() {
   const compiledFunction = pug.compileFile( __dirname + '/../assets/html/index.pug' );
-  getTopItems( 20, function( error, storyArray ) {
+  getTopItems( 10, function( error, storyArray ) {
     if ( error !== null ) {
       return reportException( error );
     }
