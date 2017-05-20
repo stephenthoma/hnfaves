@@ -2,7 +2,7 @@
 const fs = require('fs');
 const pug = require('pug');
 const CronJob = require('cron').CronJob;
-const Redis = require( 'redis' ).createClient( 6379, process.env.REDIS_IP || 127.0.0.1 ).on( 'error', reportException );
+const Redis = require( 'redis' ).createClient( 6379, process.env.REDIS_IP || '127.0.0.1' ).on( 'error', reportException );
 const PRODUCTION = process.env.NODE_ENV === 'production';
 
 if ( PRODUCTION === true ) {
