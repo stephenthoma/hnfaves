@@ -1,5 +1,5 @@
 'use strict';
-const Redis = require( 'redis' ).createClient().on( 'error', reportException );
+const Redis = require( 'redis' ).createClient( 6379, process.env.REDIS_IP || 127.0.0.1 ).on( 'error', reportException );
 const fs = require( 'fs' );
 
 function reportException( error ) {
@@ -82,5 +82,5 @@ function MHGETALL( keys, callback ) {
 
 require( 'http' )
   .createServer( onRequest )
-  .listen( process.env.NODE_ENV === 'development'? 8001 : 80 )
+  .listen( 8001 )
   .on( 'clientError', reportException );

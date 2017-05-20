@@ -13,7 +13,7 @@
     }
     var count = document.getElementById('favorites-list').getElementsByTagName('li').length;
     httpRequest.onreadystatechange = renderItems;
-    httpRequest.open( 'GET', `http://localhost:8001/more?count=${count}` );
+    httpRequest.open( 'GET', `/more?count=${count}` );
     httpRequest.send();
   }
 
