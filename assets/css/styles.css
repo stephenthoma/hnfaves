@@ -31,6 +31,12 @@ header h1 {
   margin: 0 auto;
 }
 
+@media (min-width: 1000px) {
+  .container {
+    width: 85%;
+  }
+}
+
 ol.favorites-list {
   display: flex;
   flex-direction: column;
@@ -91,12 +97,13 @@ li.favorites-list-item .item-meta .item-meta-bullet {
   margin-top: 20px;
   text-align: center;
   text-transform: uppercase;
-  font-weight: 500;
-  font-size: 11px;
 }
 .more-container a {
   text-decoration: none;
 }
+.more-container a:hover {
+  text-decoration: underline;
+};
 
 footer {
   margin-top: 40px;
