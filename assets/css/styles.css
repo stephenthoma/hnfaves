@@ -31,7 +31,7 @@ header h1 {
   margin: 0 auto;
 }
 
-@media (min-width: 1000px) {
+@media (max-width: 1000px) {
   .container {
     width: 85%;
   }
@@ -103,7 +103,7 @@ li.favorites-list-item .item-meta .item-meta-bullet {
 }
 .more-container a:hover {
   text-decoration: underline;
-};
+}
 
 footer {
   margin-top: 40px;
