@@ -22,11 +22,11 @@ function getItemCounts() {
       }
       // TODO: refactor this
       const favoriteCounts = userFavorites.map( function( favoriteArrStr ) {
-          return JSON.parse(favoriteArrStr[0])
+          return JSON.parse(favoriteArrStr[0]);
         }).reduce( function( acc, favoriteArr ) {
           favoriteArr.forEach( function( favorite ) {
             acc[favorite] = acc[favorite] ? acc[favorite] + 1 : 1;
-          })
+          });
           return acc;
         }, {} );
       for ( let favorite in favoriteCounts ) {
