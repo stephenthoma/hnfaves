@@ -1,6 +1,6 @@
 'use strict';
 const Redis = require( 'redis' ).createClient().on( 'error', reportException );
-const request = require('request');
+const request = require('./request.js');
 
 const API_URL = 'https://hacker-news.firebaseio.com/v0/';
 
@@ -29,35 +29,34 @@ function getItemCounts() {
           });
           return acc;
         }, {} );
+      let promiseArr = [];
       for ( let favorite in favoriteCounts ) {
-        lookupItem( favorite, function( error, item ) {
-          if ( error !== null ) {
-            reportException( error );
-          } else {
-            item.numFavoriters = favoriteCounts[favorite];
+        promiseArr.push( lookupItem( favorite ) );
+      }
+      Promise.all( promiseArr ).then( items => {
+          items.map( item => {
+            item.numFavoriters = favoriteCounts[ item.id ];
             Redis.HMSET( `story:${item.id}`, item );
             Redis.SADD( 'sindex', `story:${item.id}` );
-          }
-        });
-      }
+          });
+      }).catch( ( error ) => reportException( error ) );
     });
   });
 }
 
-function lookupItem( itemId, callback ) {
+function lookupItem( itemId ) {
   // TODO: refactor this
-  request(`${API_URL}/item/${itemId}.json`, function( error, response, body ) {
-    if ( error !== null ) {
-      callback( error, null );
-    } else {
-      const item = {}
-      body = JSON.parse( body );
-      item.url = body.url || `https://news.ycombinator.com/item?id=${itemId}`;
-      item.title = body.title;
-      item.id = itemId;
-      item.numComments = body.descendants;
-      callback( null, item );
-    }
+  return new Promise( ( resolve, reject ) => {
+      request(`${API_URL}/item/${itemId}.json` ).then( ( response ) => {
+        const item = {};
+        const body = JSON.parse( response.body );
+        item.url = body.url || `https://news.ycombinator.com/item?id=${itemId}`; // Self posts don't have url
+        item.title = body.title;
+        item.id = itemId;
+        item.numComments = body.descendants;
+        resolve( item );
+      }).catch( ( error ) => reject( error ) );
   });
 }
+
 getItemCounts();
