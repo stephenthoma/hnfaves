@@ -1,8 +1,8 @@
 'use strict';
 const fs = require('fs');
 const pug = require('pug');
-const CronJob = require('cron').CronJob;
 const util = require('./util.js');
+const CronJob = require('cron').CronJob;
 const PRODUCTION = process.env.NODE_ENV === 'production';
 
 if ( PRODUCTION === true ) {
