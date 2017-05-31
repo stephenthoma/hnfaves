@@ -8,14 +8,14 @@ const ITEM_URL = 'https://news.ycombinator.com/item?id=';
 
 function getItemCounts() {
     Redis.keys( 'users:*', function( error, userKeyList ) {
-        if ( error !== undefined ) {
+        if ( error !== null ) {
             return reportException( error );
         }
         for ( let i = 0, j = userKeyList.length; i < j; i++ ) {
             userKeyList[i] = [ 'HMGET', userKeyList[i], 'favorites' ];
         }
         Redis.multi( userKeyList ).exec( function( error, userFavorites ) {
-            if ( error !== undefined ) {
+            if ( error !== null ) {
                 return reportException( error );
             }
             // TODO: refactor this
