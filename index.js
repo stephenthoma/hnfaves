@@ -3,19 +3,19 @@ const Redis = require( 'redis' ).createClient( 6379, process.env.REDIS_IP || '12
 const fs = require( 'fs' );
 
 function reportException( error ) {
-  console.error( error );
+    console.error( error );
 }
 
 function reportLog( message ) {
-  console.log( message );
+    console.log( message );
 }
 
 function onRequest( req, res ) {
     req.res = res;
     if ( req.url === '/' ) {
-      indexRequest( req );
+        indexRequest( req );
     } else if ( req.url.includes( '/more' ) === true ) {
-      moreRequest( req );
+        moreRequest( req );
     } else {
         if ( req.url !== '/healthcheck' ) {
             res.statusCode = 204;
@@ -24,49 +24,48 @@ function onRequest( req, res ) {
     }
     reportLog({
         message:
-            res.statusCode + ' ' +
-            req.method + ' ' +
-            req.url
+        res.statusCode + ' ' +
+        req.method + ' ' +
+        req.url
     });
 }
 
-function indexRequest( reqRes ) {
-   //TODO: Better to store html in memory?
-  fs.readFile( __dirname + '/html/index.html', function( err, html ) {
-    if ( err ) {
-      reqRes.res.statuscode = 500;
-      reqRes.res.end();
-      reportException( err );
-    } else {
-      reqRes.res.writeHeader( 200, {"Content-Type": "text/html"} );
-      reqRes.res.write( html );
-      reqRes.res.end();
-    }
-  });
+function indexRequest( reqRes ) { // Used in development
+    fs.readFile( __dirname + '/html/index.html', function( err, html ) {
+        if ( err ) {
+            reqRes.res.statuscode = 500;
+            reqRes.res.end();
+            reportException( err );
+        } else {
+            reqRes.res.writeHeader( 200, {"Content-Type": "text/html"} );
+            reqRes.res.write( html );
+            reqRes.res.end();
+        }
+    });
 }
 
 function moreRequest( reqRes ) {
-    let startIdx = +reqRes.url.split('/more?count=')[1];
-    startIdx = isNaN( startIdx ) ? 10 : startIdx;
+        let startIdx = +reqRes.url.split('/more?count=')[1];
+        startIdx = isNaN( startIdx ) ? 10 : startIdx;
 
-    getItems( startIdx, 5, function( error, resItems ) {
-      reqRes.res.writeHeader(200, {"Content-Type": "application/json"});
-      reqRes.res.end( JSON.stringify( resItems ) );
-    });
+        getItems( startIdx, 5, function( error, resItems ) {
+            reqRes.res.writeHeader(200, {"Content-Type": "application/json"});
+            reqRes.res.end( JSON.stringify( resItems ) );
+        });
 }
 
 function getItems( start, numItems, callback ) {
-  Redis.SORT('sindex', 'by', '*->numFavoriters', 'limit', start.toString(), numItems.toString(), 'desc', 'get', '#', function( error, storyList ) {
-    if ( error !== null ) {
-      callback( error, null );
-    }
-    MHGETALL( storyList, function( error, storyArray ) {
-      if ( error !== null ) {
-        callback( error, null );
-      }
-      callback( null, storyArray );
+    Redis.SORT('sindex', 'by', '*->numFavoriters', 'limit', start.toString(), numItems.toString(), 'desc', 'get', '#', function( error, storyList ) {
+        if ( error !== null ) {
+            callback( error, null );
+        }
+        MHGETALL( storyList, function( error, storyArray ) {
+            if ( error !== null ) {
+                callback( error, null );
+            }
+            callback( null, storyArray );
+        });
     });
-  });
 }
 
 function MHGETALL( keys, callback ) {
@@ -80,6 +79,6 @@ function MHGETALL( keys, callback ) {
 }
 
 require( 'http' )
-  .createServer( onRequest )
-  .listen( 8001 )
-  .on( 'clientError', reportException );
+    .createServer( onRequest )
+    .listen( 8001 )
+    .on( 'clientError', reportException );
