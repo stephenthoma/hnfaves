@@ -1,20 +1,21 @@
 'use strict';
-const Redis = require( 'redis' ).createClient().on( 'error', reportException );
 const request = require('./request.js');
+const reportException = require('./util.js').reportException;
+const Redis = require( 'redis' ).createClient().on( 'error', reportException );
 
 const API_URL = 'https://hacker-news.firebaseio.com/v0/';
 const ITEM_URL = 'https://news.ycombinator.com/item?id=';
 
 function getItemCounts() {
     Redis.keys( 'users:*', function( error, userKeyList ) {
-        if ( error !== null ) {
-            reportException( error );
+        if ( error !== undefined ) {
+            return reportException( error );
         }
         for ( let i = 0, j = userKeyList.length; i < j; i++ ) {
             userKeyList[i] = [ 'HMGET', userKeyList[i], 'favorites' ];
         }
         Redis.multi( userKeyList ).exec( function( error, userFavorites ) {
-            if ( error !== null ) {
+            if ( error !== undefined ) {
                 return reportException( error );
             }
             // TODO: refactor this
@@ -50,10 +51,6 @@ function lookupItem( itemId ) {
             });
         }).catch( ( error ) => reject( error ) );
     });
-}
-
-function reportException( error ) {
-    console.error( error );
 }
 
 getItemCounts();
