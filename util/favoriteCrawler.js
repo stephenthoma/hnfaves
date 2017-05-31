@@ -1,5 +1,6 @@
 'use strict';
 const request = require('./request.js');
+const reportException = require('../util.js').reportException;
 const API_BASE_URL ='https://hacker-news.firebaseio.com/v0/';
 
 module.exports = {
@@ -14,9 +15,7 @@ function traversePost( postId, queue, visited, callback ) {
     getPostInfo( postId ).then( ( post ) => {
         visited[ post.id ] = post;
         queue.push.apply( queue, post.kids );
-    }).catch( (error ) => {
-        console.log( error );
-    }).then( () => {
+    }).catch( error  => reportException( error ) ).then( () => {
         if( queue.length === 0 ) {
             callback( visited );
         } else {
@@ -25,6 +24,7 @@ function traversePost( postId, queue, visited, callback ) {
         }
     });
 }
+
 function getPostInfo( postID ) {
     return new Promise( ( resolve, reject ) => {
         try {

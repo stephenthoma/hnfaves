@@ -1,14 +1,6 @@
 'use strict';
-const Redis = require( 'redis' ).createClient( 6379, process.env.REDIS_IP || '127.0.0.1' ).on( 'error', reportException );
 const fs = require( 'fs' );
-
-function reportException( error ) {
-    console.error( error );
-}
-
-function reportLog( message ) {
-    console.log( message );
-}
+const util = require('./util/util.js');
 
 function onRequest( req, res ) {
     req.res = res;
@@ -22,7 +14,7 @@ function onRequest( req, res ) {
         }
         res.end();
     }
-    reportLog({
+    util.reportLog({
         message:
         res.statusCode + ' ' +
         req.method + ' ' +
@@ -31,13 +23,13 @@ function onRequest( req, res ) {
 }
 
 function indexRequest( reqRes ) { // Used in development
-    fs.readFile( __dirname + '/html/index.html', function( err, html ) {
-        if ( err ) {
+    fs.readFile( __dirname + '/html/index.html', function( error, html ) {
+        if ( error !== undefined ) {
             reqRes.res.statuscode = 500;
             reqRes.res.end();
-            reportException( err );
+            util.reportException( error );
         } else {
-            reqRes.res.writeHeader( 200, {"Content-Type": "text/html"} );
+            reqRes.res.writeHeader( 200, {'Content-Type': 'text/html'} );
             reqRes.res.write( html );
             reqRes.res.end();
         }
@@ -45,40 +37,20 @@ function indexRequest( reqRes ) { // Used in development
 }
 
 function moreRequest( reqRes ) {
-        let startIdx = +reqRes.url.split('/more?count=')[1];
-        startIdx = isNaN( startIdx ) ? 10 : startIdx;
+    let startIdx = +reqRes.url.split('/more?count=')[1];
+    startIdx = isNaN( startIdx ) ? 10 : startIdx;
 
-        getItems( startIdx, 5, function( error, resItems ) {
-            reqRes.res.writeHeader(200, {"Content-Type": "application/json"});
+    util.getItems( startIdx, 5, function( error, resItems ) {
+        if ( error !== undefined ) {
+            util.reportException( error );
+        } else {
+            reqRes.res.writeHeader(200, {'Content-Type': 'application/json'});
             reqRes.res.end( JSON.stringify( resItems ) );
-        });
-}
-
-function getItems( start, numItems, callback ) {
-    Redis.SORT('sindex', 'by', '*->numFavoriters', 'limit', start.toString(), numItems.toString(), 'desc', 'get', '#', function( error, storyList ) {
-        if ( error !== null ) {
-            callback( error, null );
         }
-        MHGETALL( storyList, function( error, storyArray ) {
-            if ( error !== null ) {
-                callback( error, null );
-            }
-            callback( null, storyArray );
-        });
-    });
-}
-
-function MHGETALL( keys, callback ) {
-    const multi = Redis.multi();
-    keys.forEach( function( key, index ) {
-        multi.hgetall( key );
-    });
-    multi.exec( function( error, result ) {
-        callback( error, result );
     });
 }
 
 require( 'http' )
     .createServer( onRequest )
     .listen( 8001 )
-    .on( 'clientError', reportException );
+    .on( 'clientError', util.reportException );
