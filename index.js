@@ -1,6 +1,6 @@
 'use strict';
 const fs = require( 'fs' );
-const util = require('./util/util.js');
+const util = require('./utilities/util.js');
 
 function onRequest( req, res ) {
     req.res = res;

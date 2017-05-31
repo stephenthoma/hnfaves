@@ -1,26 +1,40 @@
 'use strict';
 const request = require('./request.js');
-const reportException = require('../util.js').reportException;
+const reportException = require('./util.js').reportException;
 const API_BASE_URL ='https://hacker-news.firebaseio.com/v0/';
 
 module.exports = {
-    traversePost,
+    getUsers,
     getPostInfo,
     getFavorites,
     getItem,
     getTopPosts
 };
 
-function traversePost( postId, queue, visited, callback ) {
+function getUsers( postId ) {
+    return new Promise( ( resolve, reject ) => {
+        getUsersHelper( postId, [], [], function( error, users ) {
+            if ( error !== null ) {
+                reject( error );
+            } else {
+                resolve( users );
+            }
+        });
+    });
+}
+
+function getUsersHelper( postId, queue, users, callback ) {
     getPostInfo( postId ).then( ( post ) => {
-        visited[ post.id ] = post;
+        users.push( post.by );
         queue.push.apply( queue, post.kids );
-    }).catch( error  => reportException( error ) ).then( () => {
+    }).catch( ( error )  => {
+        callback( error, null );
+    }).then( () => {
         if( queue.length === 0 ) {
-            callback( visited );
+            callback( null, users );
         } else {
             let nextPostId = queue.shift();
-            traversePost( nextPostId, queue, visited, callback );
+            getUsers( nextPostId, queue, users, callback );
         }
     });
 }
@@ -91,8 +105,8 @@ function getTopPosts( numPosts ) {
         }).catch( ( error ) => reject( error ) );
     });
 }
-
 //getTopPosts( 3 ).then( ( posts ) => console.log( 'POSTS: ', posts ) );
 //getItem( 'item', '1' ).then( ( item ) => console.log( 'ITEM: ', item ) );
 //getFavorites( 'patio11' ).then( ( favorites ) => console.log( 'FAVORITES: ', favorites ) );
-//traversePost( '1', [], {}, function( res ) { console.log( 'TRAVERSE: ', res ); });
+//getUsersHelper( '1', [], {}, function( res ) { console.log( 'USERS HELPER: ', res ); });
+getUsers( '1' ).then( ( users ) => console.log( 'USERS: ', users) );

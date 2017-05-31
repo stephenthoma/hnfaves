@@ -3,6 +3,7 @@ const fs = require('fs');
 const pug = require('pug');
 const util = require('./util.js');
 const CronJob = require('cron').CronJob;
+const favoriteCrawler = require('./favoriteCrawler.js');
 const PRODUCTION = process.env.NODE_ENV === 'production';
 
 if ( PRODUCTION === true ) {
@@ -13,7 +14,25 @@ if ( PRODUCTION === true ) {
         timeZone: 'Atlantic/Reykjavik'
     });
 } else {
-    compileIndex();
+    getFavoritesFromTopPosts();
+    //compileIndex();
+}
+
+function getFavoritesFromTopPosts() {
+    favoriteCrawler.getTopPosts( 40 ).then( ( posts ) => {
+        posts.map( ( post ) => {
+           favoriteCrawler.getUsers( post, [], [] ).then( ( users ) => {
+               console.log(users);
+               users.map( ( user ) => {
+                   favoriteCrawler.getFavorites( user ).then( ( favorites ) => {
+                       console.log(favorites);
+                   });
+               });
+
+           });
+        });
+
+    });
 }
 
 function compileIndex() {
