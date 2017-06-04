@@ -7,7 +7,7 @@ const API_URL = 'https://hacker-news.firebaseio.com/v0/';
 const ITEM_URL = 'https://news.ycombinator.com/item?id=';
 
 function getItemCounts() {
-    Redis.keys( 'users:*', function( error, userKeyList ) {
+    Redis.keys( 'user:*', function( error, userKeyList ) {
         if ( error !== null ) {
             return reportException( error );
         }
@@ -30,6 +30,8 @@ function getItemCounts() {
             let promiseArr = Object.keys( favoriteCounts ).map( favorite => lookupItem( favorite ) );
             Promise.all( promiseArr ).then( items => {
                 items.map( item => {
+                    // TODO: Check if story already exists
+                    // merge items if it does
                     item.numFavoriters = favoriteCounts[ item.id ];
                     Redis.HMSET( `story:${item.id}`, item );
                     Redis.SADD( 'sindex', `story:${item.id}` );

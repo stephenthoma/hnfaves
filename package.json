@@ -4,6 +4,7 @@
   "description": "HN favorites aggregator",
   "main": "index.js",
   "dependencies": {
+    "bottleneck": "^1.15.1",
     "cron": "^1.2.1",
     "pug": "^2.0.0-rc.1",
     "redis": "^2.7.1"

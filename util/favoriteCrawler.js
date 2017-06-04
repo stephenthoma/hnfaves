@@ -2,8 +2,10 @@
 const request = require('./request.js');
 const reportException = require('./util.js').reportException;
 const API_BASE_URL ='https://hacker-news.firebaseio.com/v0/';
+const Redis = require( 'redis' ).createClient( 6379, process.env.REDIS_IP || '127.0.0.1' ).on( 'error', reportException );
 
 module.exports = {
+    storeUser,
     getUsers,
     getPostInfo,
     getFavorites,
@@ -11,9 +13,15 @@ module.exports = {
     getTopPosts
 };
 
+function storeUser( user, favorites ) {
+    // TODO: User a set instead of stringifying
+    // TODO: Check if user already exists, merge favorites if exists
+    Redis.hmset( [ `user:${user}`, 'favorites',  JSON.stringify(favorites) ] );
+}
+
 function getUsers( postId ) {
     return new Promise( ( resolve, reject ) => {
-        getUsersHelper( postId, [], [], function( error, users ) {
+        getUsersHelper( postId, [], {}, function( error, users ) {
             if ( error !== null ) {
                 reject( error );
             } else {
@@ -25,7 +33,7 @@ function getUsers( postId ) {
 
 function getUsersHelper( postId, queue, users, callback ) {
     getPostInfo( postId ).then( ( post ) => {
-        users.push( post.by );
+        users[ post.by ] = true;
         queue.push.apply( queue, post.kids );
     }).catch( ( error )  => {
         callback( error, null );
@@ -34,7 +42,7 @@ function getUsersHelper( postId, queue, users, callback ) {
             callback( null, users );
         } else {
             let nextPostId = queue.shift();
-            getUsers( nextPostId, queue, users, callback );
+            getUsersHelper( nextPostId, queue, users, callback );
         }
     });
 }
@@ -105,8 +113,8 @@ function getTopPosts( numPosts ) {
         }).catch( ( error ) => reject( error ) );
     });
 }
-//getTopPosts( 3 ).then( ( posts ) => console.log( 'POSTS: ', posts ) );
+//getTopPosts( 400 ).then( ( posts ) => console.log( 'POSTS: ', posts ) );
 //getItem( 'item', '1' ).then( ( item ) => console.log( 'ITEM: ', item ) );
 //getFavorites( 'patio11' ).then( ( favorites ) => console.log( 'FAVORITES: ', favorites ) );
-//getUsersHelper( '1', [], {}, function( res ) { console.log( 'USERS HELPER: ', res ); });
-getUsers( '1' ).then( ( users ) => console.log( 'USERS: ', users) );
+//getUsersHelper( '1', [], [], function( error, res ) { console.log( 'USER HELPER: ', res ) });
+//getUsers( '14479074' ).then( ( users ) => console.log( 'USERS: ', users) );

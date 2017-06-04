@@ -3,6 +3,7 @@ const fs = require('fs');
 const pug = require('pug');
 const util = require('./util.js');
 const CronJob = require('cron').CronJob;
+const Bottleneck = require('bottleneck');
 const favoriteCrawler = require('./favoriteCrawler.js');
 const PRODUCTION = process.env.NODE_ENV === 'production';
 
@@ -18,20 +19,28 @@ if ( PRODUCTION === true ) {
     //compileIndex();
 }
 
+const MAX_CONCURRENT = 2;
+const MIN_TIME = 500;
+const limiter = new Bottleneck( MAX_CONCURRENT, MIN_TIME );
 function getFavoritesFromTopPosts() {
-    favoriteCrawler.getTopPosts( 40 ).then( ( posts ) => {
-        posts.map( ( post ) => {
-           favoriteCrawler.getUsers( post, [], [] ).then( ( users ) => {
-               console.log(users);
-               users.map( ( user ) => {
-                   favoriteCrawler.getFavorites( user ).then( ( favorites ) => {
-                       console.log(favorites);
-                   });
-               });
-
+    let favoritePromiseArray = [];
+    favoriteCrawler.getTopPosts( 60 ).then( ( posts ) => {
+        let postPromiseArray = posts.map( post => favoriteCrawler.getUsers( post ) );
+        Promise.all( postPromiseArray ).then( ( users ) => {
+            let dedupedUsers = {};
+            for ( let user in users ) {
+                Object.assign( dedupedUsers, users[user] );
+            };
+            dedupedUsers = Object.keys( dedupedUsers );
+            dedupedUsers.map( ( user ) => {
+                limiter.schedule( favoriteCrawler.getFavorites, user ).then( ( favorites ) => {
+                    if ( favorites.length > 0 ) {
+                        console.log( user, favorites );
+                        favoriteCrawler.storeUser( user, favorites );
+                    }
+                }).catch( error => console.log( error ) );
            });
         });
-
     });
 }
 
