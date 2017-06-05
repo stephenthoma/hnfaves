@@ -5,19 +5,11 @@ const API_BASE_URL ='https://hacker-news.firebaseio.com/v0/';
 const Redis = require( 'redis' ).createClient( 6379, process.env.REDIS_IP || '127.0.0.1' ).on( 'error', reportException );
 
 module.exports = {
-    storeUser,
     getUsers,
-    getPostInfo,
+    storeUser,
     getFavorites,
-    getItem,
     getTopPosts
 };
-
-function storeUser( user, favorites ) {
-    // TODO: User a set instead of stringifying
-    // TODO: Check if user already exists, merge favorites if exists
-    Redis.hmset( [ `user:${user}`, 'favorites',  JSON.stringify(favorites) ] );
-}
 
 function getUsers( postId ) {
     return new Promise( ( resolve, reject ) => {
@@ -44,6 +36,32 @@ function getUsersHelper( postId, queue, users, callback ) {
             let nextPostId = queue.shift();
             getUsersHelper( nextPostId, queue, users, callback );
         }
+    });
+}
+
+function storeUser( user, favorites ) {
+    // TODO: User a set instead of stringifying
+    getUserRedis( user ).then( ( redisUser ) => {
+        if ( redisUser !== null ) {
+            favorites.push.apply( favorites, JSON.parse( redisUser.favorites ) );
+            favorites = favorites.filter( (elem, pos) => {
+                    return favorites.indexOf( elem ) == pos;
+            });
+        }
+        Redis.hset( [ `user:${user}`, 'favorites',  JSON.stringify(favorites) ] );
+    });
+}
+
+function getUserRedis( user ) {
+     // Checks Redis for user. Returns user if exists, otherwise undefined
+    return new Promise( ( resolve, reject ) => {
+        Redis.hgetall( [ `user:${user}` ], function( error, response ) {
+            if ( error !== null ) {
+                reject( error );
+            } else {
+                resolve( response );
+            }
+        });
     });
 }
 
