@@ -3,6 +3,8 @@ const fs = require('fs');
 const pug = require('pug');
 const util = require('./util.js');
 const CronJob = require('cron').CronJob;
+const Bottleneck = require('bottleneck');
+const favoriteCrawler = require('./favoriteCrawler.js');
 const PRODUCTION = process.env.NODE_ENV === 'production';
 
 if ( PRODUCTION === true ) {
@@ -12,8 +14,41 @@ if ( PRODUCTION === true ) {
         start: true,
         timeZone: 'Atlantic/Reykjavik'
     });
+
+    new CronJob({
+        cronTime: '0 0 17 * * *',
+        onTick: getFavoritesFromTopPosts,
+        start: true,
+        timeZone: 'Atlantic/Reykjavik'
+    });
 } else {
-    compileIndex();
+    getFavoritesFromTopPosts();
+    //compileIndex();
+}
+
+const MAX_CONCURRENT = 2;
+const MIN_TIME = 500;
+const limiter = new Bottleneck( MAX_CONCURRENT, MIN_TIME );
+function getFavoritesFromTopPosts() {
+    let favoritePromiseArray = [];
+    favoriteCrawler.getTopPosts( 60 ).then( ( posts ) => {
+        let postPromiseArray = posts.map( post => favoriteCrawler.getUsers( post ) );
+        Promise.all( postPromiseArray ).then( ( users ) => {
+            let dedupedUsers = {};
+            for ( let user in users ) {
+                Object.assign( dedupedUsers, users[user] );
+            };
+            dedupedUsers = Object.keys( dedupedUsers );
+            dedupedUsers.map( ( user ) => {
+                limiter.schedule( favoriteCrawler.getFavorites, user ).then( ( favorites ) => {
+                    if ( favorites.length > 0 ) {
+                        console.log( user, favorites );
+                        favoriteCrawler.storeUser( user, favorites );
+                    }
+                }).catch( error => console.log( error ) );
+           });
+        });
+    });
 }
 
 function compileIndex() {
