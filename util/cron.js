@@ -14,6 +14,13 @@ if ( PRODUCTION === true ) {
         start: true,
         timeZone: 'Atlantic/Reykjavik'
     });
+
+    new CronJob({
+        cronTime: '0 0 17 * * *',
+        onTick: getFavoritesFromTopPosts,
+        start: true,
+        timeZone: 'Atlantic/Reykjavik'
+    });
 } else {
     getFavoritesFromTopPosts();
     //compileIndex();
