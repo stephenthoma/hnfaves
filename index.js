@@ -41,7 +41,7 @@ function moreRequest( reqRes ) {
     startIdx = isNaN( startIdx ) ? 10 : startIdx;
 
     util.getItems( startIdx, 5, function( error, resItems ) {
-        if ( error !== undefined ) {
+        if ( error !== null ) {
             util.reportException( error );
         } else {
             reqRes.res.writeHeader(200, {'Content-Type': 'application/json'});
