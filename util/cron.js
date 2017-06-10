@@ -9,29 +9,29 @@ const PRODUCTION = process.env.NODE_ENV === 'production';
 
 if ( PRODUCTION === true ) {
     new CronJob({
-        cronTime: '0 */5 * * * *',
+        cronTime: '0 0 17 * * *',
         onTick: compileIndex,
         start: true,
-        timeZone: 'Atlantic/Reykjavik'
+        timeZone: 'America/Los_Angeles'
     });
 
     new CronJob({
-        cronTime: '0 0 17 * * *',
+        cronTime: '0 0 15 * * *',
         onTick: getFavoritesFromTopPosts,
         start: true,
-        timeZone: 'Atlantic/Reykjavik'
+        timeZone: 'America/Los_Angeles'
     });
 } else {
-    getFavoritesFromTopPosts();
-    //compileIndex();
+    //getFavoritesFromTopPosts();
+    compileIndex();
 }
 
-const MAX_CONCURRENT = 2;
-const MIN_TIME = 500;
+const MAX_CONCURRENT = 1;
+const MIN_TIME = 10e3;
 const limiter = new Bottleneck( MAX_CONCURRENT, MIN_TIME );
 function getFavoritesFromTopPosts() {
     let favoritePromiseArray = [];
-    favoriteCrawler.getTopPosts( 60 ).then( ( posts ) => {
+    favoriteCrawler.getTopPosts( 30 ).then( ( posts ) => {
         let postPromiseArray = posts.map( post => favoriteCrawler.getUsers( post ) );
         Promise.all( postPromiseArray ).then( ( users ) => {
             let dedupedUsers = {};
