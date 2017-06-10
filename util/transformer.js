@@ -1,7 +1,7 @@
 'use strict';
 const request = require('./request.js');
 const reportException = require('./util.js').reportException;
-const Redis = require( 'redis' ).createClient().on( 'error', reportException );
+const Redis = require( 'redis' ).createClient( 6379, process.env.REDIS_IP || '127.0.0.1' ).on( 'error', reportException );
 
 const API_URL = 'https://hacker-news.firebaseio.com/v0/';
 const ITEM_URL = 'https://news.ycombinator.com/item?id=';
