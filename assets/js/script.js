@@ -19,13 +19,13 @@
 
   function renderItems() {
     if ( httpRequest.readyState === XMLHttpRequest.DONE && httpRequest.status === 200 ) {
-      var listItem = ({ url, title, numFavoriters, itemId, numComments }) => `
+      var listItem = ({ url, title, numFavoriters, id, numComments }) => `
         <li class="favorites-list-item">
           <a class="item-title" href=${url}> ${title}</a>
           <div class="item-meta">
             <span class="item-meta-favoriters"> Favorited by ${numFavoriters}</span>
             <span class="item-meta-bullet"> &bull;</span>
-            <a class="item-meta-comments" href="https://news.ycombinator.com/item?id=${itemId}"> ${numComments} comments</a>
+            <a class="item-meta-comments" href="https://news.ycombinator.com/item?id=${id}"> ${numComments} comments</a>
           </div>
         </li>
       `;
