@@ -22,8 +22,9 @@ header {
   align-items: center;
   justify-content: center;
 }
-header h1 {
-  letter-spacing: 5px;
+
+h1 {
+  letter-spacing: 3px;
   font-weight: 100;
   margin: 20px;
 }
@@ -115,3 +116,87 @@ footer {
   border-top: 1px solid #aaa;
   color: #444;
 }
+
+footer span {
+  width: 100%;
+  display: table;
+  margin-bottom: 3px;
+}
+
+/* Modal styles */
+.muddle-overlay {
+  visibility: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  opacity: 0;
+  background: rgba(250, 250, 250, 0.6);
+  -webkit-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  transition: all 0.3s;
+}
+.md-active ~ .muddle-overlay {
+  opacity: 1;
+  visibility: visible;
+}
+body.md-active {
+  overflow: hidden;
+}
+.muddle-modal {
+  visibility: hidden;
+  z-index: 2000;
+  position: fixed;
+  overflow: auto;
+  top:40%;
+  left:50%;
+  max-width:700px;
+  min-width: 320px;
+  height: auto;
+
+  background-color: rgba(248, 248, 248, 1);
+  border-radius: 2px;
+  border-bottom: 0 none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.15);
+
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-transform: translateX(-50%) translateY(-50%);
+  -moz-transform: translateX(-50%) translateY(-50%);
+  -ms-transform: translateX(-50%) translateY(-50%);
+  transform: translateX(-50%) translateY(-50%);
+}
+.md-anim .md-content {
+  -webkit-transform: translateY(20%);
+  -moz-transform: translateY(20%);
+  -ms-transform: translateY(20%);
+  transform: translateY(20%);
+  -webkit-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  transition: all 0.3s;
+  opacity: 0;
+}
+.md-active.md-anim .md-content {
+  -webkit-transform: translateY(0);
+  -moz-transform: translateY(0);
+  -ms-transform: translateY(0);
+  transform: translateY(0);
+  opacity: 1;
+}
+.md-active {
+  visibility: visible;
+}
+.md-body {
+  padding: 30px;
+  line-height: 17px;
+  font-size: 13px;
+}
+.md-body h1 {
+  margin-top: 0;
+  text-align: center;
+}
+

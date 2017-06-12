@@ -23,6 +23,19 @@ html(lang="en")
       div(class="more-container")
         a(id="more-items-button" href="#") More
       footer
-        span Created by&nbsp;
-          a(href="https://www.stephenthoma.com") Stephen Thoma
+        span #[a(id="about" href="#") About] &mdash; #[a(id="about" href="https://github.com/stephenthoma/hnfaves") Source]
+        span Created by #[a(href="https://www.stephenthoma.com") Stephen Thoma]
+    div(id="about-modal" class="muddle-modal md-anim")
+        div(class="md-content")
+            div(class="md-body")
+                h1 ABOUT
+                p.
+                  The ability to favorite an item was added to Hacker News nearly a year ago. The feature has had a good amount of
+                  adoption, and you can browse to the profile of any user and see a list of the items they want to remember. I thought
+                  it would be interesting to see the HN community's favorites as a whole, so I created this site.
+                p.
+                  Currently the HN API doesn't make this information available, so the data for this site has been (respectfully - 1 req / 30 sec) scraped.
+                  Because of this, the database of favorited items is still under construction.
+
+    div(class="muddle-overlay")
     script(src="/assets/js/script.js")
