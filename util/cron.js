@@ -27,7 +27,7 @@ if ( PRODUCTION === true ) {
 }
 
 const MAX_CONCURRENT = 1;
-const MIN_TIME = 10e3;
+const MIN_TIME = 30e3;
 const limiter = new Bottleneck( MAX_CONCURRENT, MIN_TIME );
 function getFavoritesFromTopPosts() {
     let favoritePromiseArray = [];
